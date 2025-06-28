@@ -13,7 +13,7 @@
   </div>
 
   <div id="game" style="display:none;">
-    <h2 id="question">Choose: A or B</h2>
+    <h2 id="question">Waiting for question...</h2>
     <button onclick="submitVote('A')">Option A</button>
     <button onclick="submitVote('B')">Option B</button>
     <button onclick="getResults()">Lock and Show Result</button>
@@ -24,15 +24,10 @@
 
 <div id="admin-panel">
   <h2>🔐 Admin Panel</h2>
-  <input id="admin-password" placeholder="Enter Admin Password" />
+  
   <button onclick="loginAdmin()">Login as Admin</button>
 
-  <div id="admin-controls" style="display: none; margin-top: 20px;">
-    <input id="question-input" placeholder="Enter 'This or That' question" />
-    <button onclick="sendQuestion()">Send Question</button>
-    <button onclick="getResults()">Lock & Show Result</button>
-    <button onclick="getSurvivors()">Show Survivors</button>
-  </div>
+
 </div>
 
 
