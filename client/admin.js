@@ -18,6 +18,12 @@ function sendQuestion() {
 function getSurvivors() {
   socket.emit("getSurvivors");
 }
+function eliminateUser(id) {
+  const confirmElim = confirm(`Are you sure you want to eliminate ${id}?`);
+  if (confirmElim) {
+    socket.emit("eliminateUser", id);
+  }
+}
 
 socket.on("survivors", (list) => {
  const tbody = document.querySelector("#survivor-table tbody");
@@ -29,6 +35,7 @@ socket.on("survivors", (list) => {
       <td>${index + 1}</td>
       <td>${user.name}</td>
       <td>${user.id}</td>
+       <td><button onclick="eliminateUser('${user.id}')">Eliminate</button></td>
     `;
     tbody.appendChild(row);
   });
