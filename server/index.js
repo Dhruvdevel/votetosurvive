@@ -77,13 +77,11 @@ socket.on("eliminateUser", ({ sessionId, id }) => {
 
     const eliminate = countA > countB ? 'B' : 'A';
 
-    currentVotes.forEach(({ socketId, vote }) => {
-      if (vote === eliminate) {
-        currentVotes.forEach(({ sessionId, socketId, vote }) => {
-  if (vote === eliminate && sessions[sessionId]) {
-    sessions[sessionId].users[socketId].eliminated = true;
-    io.to(socketId).emit("eliminated");
-  }
+    currentVotes.forEach(({sessionId, socketId, vote}) => {
+      if (vote === eliminate && sessions[sessionId]) {
+      sessions[sessionId].users[socketId].eliminated = true;
+      io.to(socketId).emit("eliminated");
+    }
 });
 
       }
@@ -119,7 +117,9 @@ socket.on("unlockSession", (sessionId) => {
   
   
   socket.on('disconnect', () => {
-    delete users[socket.id];
+     for (const sessionId in sessions) {
+    delete sessions[sessionId].users[socket.id];
+    
   });
 });
 
