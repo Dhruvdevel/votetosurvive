@@ -2,39 +2,59 @@
 <html>
 <head>
   <title>Admin Panel</title>
+  
+  <!-- ✅ Socket.IO client -->
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+
+  <!-- ✅ Admin JS and CSS -->
   <script src="admin.js" defer></script>
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
   <h2>🔐 Admin Panel</h2>
 
+  <!-- 📍1. Admin Login Section -->
   <input id="admin-password" placeholder="Enter Admin Password">
   <button onclick="loginAdmin()">Login</button>
+  <p id="login-error" style="color:red;"></p> <!-- 🔔 To show invalid login -->
 
+  <!-- 📍2. Admin Controls (hidden until login) -->
   <div id="admin-controls" style="display:none;">
+
+    <!-- 📍2.1 Session ID Controls -->
     <input id="admin-session-id" placeholder="Enter Session ID">
-<button onclick="lockSession()">🔒 Lock Session</button>
-<button onclick="unlockSession()">🔓 Unlock Session</button>
+    <button onclick="lockSession()">🔒 Lock Session</button>
+    <button onclick="unlockSession()">🔓 Unlock Session</button>
     
+    <!-- 📍2.2 Question Controls -->
     <input id="question-input" placeholder="Enter question">
     <button onclick="sendQuestion()">Send Question</button>
+    
+    <!-- 📍2.3 Vote Results + Survivors -->
     <button onclick="getResults()">Show Results & Eliminate</button>
     <button onclick="getSurvivors()">Show Survivors</button>
   </div>
 
-<table border="1" id="survivor-table">
-  <thead>
-    <tr>
-      <th>S. No.</th>
-      <th>Name</th>
-      <th>ID</th>
-      <th>Action</th>
-    </tr>
-  </thead>
-  <tbody></tbody>
-</table>
+  <!-- 📍3. Live Result Display (optional but recommended) -->
+  <div id="result" style="margin-top: 20px;">
+    <h3>📊 Live Result:</h3>
+    <p>A: <span id="percent-a">0</span>%</p>
+    <p>B: <span id="percent-b">0</span>%</p>
+  </div>
 
-  
+  <!-- 📍4. Survivors Table -->
+  <table border="1" id="survivor-table">
+    <thead>
+      <tr>
+        <th>S. No.</th>
+        <th>Name</th>
+        <th>ID</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
 </body>
 </html>
