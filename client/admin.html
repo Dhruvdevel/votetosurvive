@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Panel</title>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script src="admin.js" defer></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h2>🔐 Admin Panel</h2>
+
+  <input id="admin-password" placeholder="Enter Admin Password">
+  <button onclick="loginAdmin()">Login</button>
+
+  <div id="admin-controls" style="display:none;">
+    <input id="question-input" placeholder="Enter question">
+    <button onclick="sendQuestion()">Send Question</button>
+    <button onclick="getResults()">Show Results & Eliminate</button>
+    <button onclick="getSurvivors()">Show Survivors</button>
+  </div>
+</body>
+</html>
