@@ -26,6 +26,12 @@ function sendQuestion() {
   socket.emit("newQuestion", { sessionId, question: q });
 }
 
+function getResults() {
+  console.log("📤 Admin requested getResults");
+  socket.emit("getResults");
+}
+
+
 // ✅ Request survivors from backend
 function getSurvivors() {
   const sessionId = document.getElementById("admin-session-id").value;
