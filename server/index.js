@@ -25,11 +25,13 @@ socket.on("newQuestion", (q) => {
 });
 
 // Send list of survivors to requesting admin
-socket.on("getSurvivors", () => {
-  const survivors = Object.values(users).filter(u => !u.eliminated);
-  socket.emit("survivors", survivors);
-});    
-  });
+socket.on("getSurvivors", (sessionId) => {
+  const session = sessions[sessionId];
+  if (session) {
+    const survivors = Object.values(session.users).filter(u => !u.eliminated);
+    socket.emit("survivors", survivors);
+  }
+});
 
 socket.on("newQuestion", ({ sessionId, question }) => {
   io.emit("question", question); // Optionally, scope to session users
