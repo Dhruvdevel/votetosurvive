@@ -21,11 +21,13 @@ function getSurvivors() {
   socket.emit("getSurvivors",sessionId);
 }
 function eliminateUser(id) {
+  const sessionId = document.getElementById("admin-session-id").value;
   const confirmElim = confirm(`Are you sure you want to eliminate ${id}?`);
   if (confirmElim) {
-    socket.emit("eliminateUser", id);
+    socket.emit("eliminateUser", { sessionId, id });
   }
 }
+
 
 function lockSession() {
   const sessionId = document.getElementById("admin-session-id").value;
@@ -36,6 +38,9 @@ function unlockSession() {
   const sessionId = document.getElementById("admin-session-id").value;
   socket.emit("unlockSession", sessionId);
 }
+socket.on("eliminateUser", ({ sessionId, id }) => {
+  // eliminates user from that session
+});
 
 
 socket.on("sessionStatus", ({ sessionId, locked }) => {
