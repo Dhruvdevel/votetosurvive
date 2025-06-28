@@ -13,6 +13,10 @@
   <button onclick="loginAdmin()">Login</button>
 
   <div id="admin-controls" style="display:none;">
+    <input id="admin-session-id" placeholder="Enter Session ID">
+<button onclick="lockSession()">🔒 Lock Session</button>
+<button onclick="unlockSession()">🔓 Unlock Session</button>
+    
     <input id="question-input" placeholder="Enter question">
     <button onclick="sendQuestion()">Send Question</button>
     <button onclick="getResults()">Show Results & Eliminate</button>
