@@ -20,6 +20,16 @@ function getSurvivors() {
 }
 
 socket.on("survivors", (list) => {
-  const names = list.map(u => u.name).join(", ");
-  alert("🧍 Survivors: " + names);
+ const tbody = document.querySelector("#survivor-table tbody");
+  tbody.innerHTML = ""; // Clear previous rows
+
+  list.forEach((user, index) => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${index + 1}</td>
+      <td>${user.name}</td>
+      <td>${user.id}</td>
+    `;
+    tbody.appendChild(row);
+  });
 });
