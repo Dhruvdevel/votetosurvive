@@ -12,11 +12,13 @@ function loginAdmin() {
 
 function sendQuestion() {
   const q = document.getElementById("question-input").value;
-  socket.emit("newQuestion", q);
+   const sessionId = document.getElementById("admin-session-id").value;
+  socket.emit("newQuestion",  { sessionId, question: q });
 }
 
 function getSurvivors() {
-  socket.emit("getSurvivors");
+   const sessionId = document.getElementById("admin-session-id").value;
+  socket.emit("getSurvivors",sessionId);
 }
 function eliminateUser(id) {
   const confirmElim = confirm(`Are you sure you want to eliminate ${id}?`);
@@ -24,6 +26,24 @@ function eliminateUser(id) {
     socket.emit("eliminateUser", id);
   }
 }
+
+function lockSession() {
+  const sessionId = document.getElementById("admin-session-id").value;
+  socket.emit("lockSession", sessionId);
+}
+
+function unlockSession() {
+  const sessionId = document.getElementById("admin-session-id").value;
+  socket.emit("unlockSession", sessionId);
+}
+
+
+socket.on("sessionStatus", ({ sessionId, locked }) => {
+  const status = locked ? "locked" : "unlocked";
+  console.log(`Session ${sessionId} is now ${status}`);
+});
+
+
 
 socket.on("survivors", (list) => {
  const tbody = document.querySelector("#survivor-table tbody");
