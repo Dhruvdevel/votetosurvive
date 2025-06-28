@@ -120,7 +120,7 @@ socket.on("unlockSession", (sessionId) => {
      for (const sessionId in sessions) {
     delete sessions[sessionId].users[socket.id];
     
-  });
+  }
 });
 
 server.listen(3000, () => {
