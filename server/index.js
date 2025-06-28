@@ -18,6 +18,19 @@ io.on('connection', (socket) => {
   socket.on('join', ({ name, id }) => {
     users[socket.id] = { name, id, eliminated: false };
     console.log(`${name} joined`);
+// Send question to everyone
+socket.on("newQuestion", (q) => {
+  io.emit("question", q);
+});
+
+// Send list of survivors to requesting admin
+socket.on("getSurvivors", () => {
+  const survivors = Object.values(users).filter(u => !u.eliminated);
+  socket.emit("survivors", survivors);
+});
+
+
+    
   });
 
   socket.on('vote', (option) => {
