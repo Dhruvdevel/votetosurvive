@@ -27,6 +27,7 @@ function submitVote(option) {
 // }
 
 socket.on("question", (q) => {
+  console.log("📥 Question received:", q);  // Debug
   document.getElementById("question").innerText = q;
 });
 
