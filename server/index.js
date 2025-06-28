@@ -12,17 +12,10 @@ const io = new Server(server, {
   cors: { origin: "*" }
 });
 
-let users = {}; // socket.id -> { name, id, eliminated: false }
 let currentVotes = []; // { socketId, vote }
 
 io.on('connection', (socket) => {
-  socket.on('join', ({ name, id }) => {
-    users[socket.id] = { name, id, eliminated: false };
-    console.log(`${name} joined`);
-// Send question to everyone
-socket.on("newQuestion", (q) => {
-  io.emit("question", q);
-});
+ 
 
 // Send list of survivors to requesting admin
 socket.on("getSurvivors", (sessionId) => {
@@ -55,9 +48,14 @@ socket.on("createSession", (sessionId) => {
 });
   
   socket.on('vote', (option) => {
-    if (!users[socket.id].eliminated) {
-      currentVotes.push({ socketId: socket.id, vote: option });
-    }
+    const sessionId = Object.keys(sessions).find(sid => sessions[sid].users[socket.id]);
+if (sessionId) {
+  const user = sessions[sessionId].users[socket.id];
+  if (!user.eliminated) {
+    currentVotes.push({ sessionId, socketId: socket.id, vote: option });
+  }
+}
+
   });
 
 
@@ -81,7 +79,13 @@ socket.on("eliminateUser", ({ sessionId, id }) => {
 
     currentVotes.forEach(({ socketId, vote }) => {
       if (vote === eliminate) {
-        users[socketId].eliminated = true;
+        currentVotes.forEach(({ sessionId, socketId, vote }) => {
+  if (vote === eliminate && sessions[sessionId]) {
+    sessions[sessionId].users[socketId].eliminated = true;
+    io.to(socketId).emit("eliminated");
+  }
+});
+
       }
     });
 
@@ -93,11 +97,7 @@ socket.on("eliminateUser", ({ sessionId, id }) => {
     currentVotes = [];
   });
 
-  socket.on('getSurvivors', () => {
-     const session = sessions[sessionId];
-    const survivors = Object.values(users).filter(u => !u.eliminated);
-    socket.emit('survivors', survivors);
-  });
+ 
 
 
 socket.on("lockSession", (sessionId) => {
