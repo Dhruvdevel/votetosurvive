@@ -72,26 +72,26 @@ socket.on("eliminateUser", ({ sessionId, id }) => {
 });  
 
   socket.on('getResults', () => {
-    const countA = currentVotes.filter(v => v.vote === 'A').length;
-    const countB = currentVotes.filter(v => v.vote === 'B').length;
+  const countA = currentVotes.filter(v => v.vote === 'A').length;
+  const countB = currentVotes.filter(v => v.vote === 'B').length;
 
-    const eliminate = countA > countB ? 'B' : 'A';
+  const eliminate = countA > countB ? 'B' : 'A';
 
-    currentVotes.forEach(({sessionId, socketId, vote}) => {
-      if (vote === eliminate && sessions[sessionId]) {
+  currentVotes.forEach(({ sessionId, socketId, vote }) => {
+    if (vote === eliminate && sessions[sessionId]) {
       sessions[sessionId].users[socketId].eliminated = true;
       io.to(socketId).emit("eliminated");
     }
+  });
+
+  io.emit('result', {
+    percentA: ((countA / (countA + countB)) * 100).toFixed(1),
+    percentB: ((countB / (countA + countB)) * 100).toFixed(1),
+  });
+
+  currentVotes = [];
 });
 
-
-    io.emit('result', {
-      percentA: ((countA / (countA + countB)) * 100).toFixed(1),
-      percentB: ((countB / (countA + countB)) * 100).toFixed(1),
-    });
-
-    currentVotes = [];
-  });
 
  
 
