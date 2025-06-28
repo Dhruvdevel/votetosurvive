@@ -84,8 +84,6 @@ socket.on("eliminateUser", ({ sessionId, id }) => {
     }
 });
 
-      }
-    });
 
     io.emit('result', {
       percentA: ((countA / (countA + countB)) * 100).toFixed(1),
