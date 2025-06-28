@@ -36,17 +36,17 @@ io.on('connection', (socket) => {
   });
 
   // ✅ Admin sends new question to participants
-  socket.on("newQuestion", ({ sessionId, question }) => {
-    const session = sessions[sessionId];
-    if (session) {
-       console.log("📤 Sending question to session:", sessionId); // ADD THIS
-      Object.keys(session.users).forEach(socketId => {
-         console.log("➡️ Emitting question to:", socketId); // ADD THIS
-        io.to(socketId).emit("question", question);
-      });
-      console.log(`❓ New question sent to session ${sessionId}: ${question}`);
-    }
-  });
+ socket.on("newQuestion", ({ sessionId, question }) => {
+  console.log("📥 Received question:", question, "for session:", sessionId); // ✅ Must log
+  const session = sessions[sessionId];
+  if (session) {
+    Object.keys(session.users).forEach(socketId => {
+      io.to(socketId).emit("question", question);
+    });
+  } else {
+    console.log("❌ Session not found:", sessionId);
+  }
+});
 
   // ✅ Vote from participant
   socket.on('vote', (option) => {
