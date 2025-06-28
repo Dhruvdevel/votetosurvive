@@ -2,6 +2,7 @@ const express = require('express');
 const http = require('http');
 const cors = require('cors');
 const { Server } = require('socket.io');
+const sessions = {};
 
 const app = express();
 app.use(cors());
@@ -27,17 +28,48 @@ socket.on("newQuestion", (q) => {
 socket.on("getSurvivors", () => {
   const survivors = Object.values(users).filter(u => !u.eliminated);
   socket.emit("survivors", survivors);
+});    
+  });
+
+socket.on("newQuestion", ({ sessionId, question }) => {
+  io.emit("question", question); // Optionally, scope to session users
 });
 
 
-    
-  });
 
+  
+
+socket.on("createSession", (sessionId) => {
+  sessions[sessionId] = { users: {}, locked: false };
+});
+
+  socket.on("join", ({ sessionId, name, id }) => {
+  const session = sessions[sessionId];
+  if (!session || session.locked) {
+    socket.emit("joinRejected", "Session is locked or invalid");
+    return;
+  }
+  session.users[socket.id] = { name, id, eliminated: false };
+});
+  
   socket.on('vote', (option) => {
     if (!users[socket.id].eliminated) {
       currentVotes.push({ socketId: socket.id, vote: option });
     }
   });
+
+
+socket.on("eliminateUser", ({ sessionId, id }) => {
+  const session = sessions[sessionId];
+  const user = Object.values(session.users).find(u => u.id === id);
+  if (user) {
+    user.eliminated = true;
+    const targetSocketId = Object.keys(session.users).find(
+      sid => session.users[sid].id === id
+    );
+    io.to(targetSocketId).emit("eliminated");
+  }
+});  
 
   socket.on('getResults', () => {
     const countA = currentVotes.filter(v => v.vote === 'A').length;
@@ -60,10 +92,21 @@ socket.on("getSurvivors", () => {
   });
 
   socket.on('getSurvivors', () => {
+     const session = sessions[sessionId];
     const survivors = Object.values(users).filter(u => !u.eliminated);
     socket.emit('survivors', survivors);
   });
 
+
+socket.on("lockSession", (sessionId) => {
+  if (sessions[sessionId]) {
+    sessions[sessionId].locked = true;
+    console.log(`Session ${sessionId} is now locked.`);
+  }
+});
+
+
+  
   socket.on('disconnect', () => {
     delete users[socket.id];
   });
