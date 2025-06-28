@@ -102,10 +102,19 @@ socket.on("lockSession", (sessionId) => {
   if (sessions[sessionId]) {
     sessions[sessionId].locked = true;
     console.log(`Session ${sessionId} is now locked.`);
+     io.emit("sessionStatus", { sessionId, locked: true });
   }
 });
 
 
+socket.on("unlockSession", (sessionId) => {
+  if (sessions[sessionId]) {
+    sessions[sessionId].locked = false;
+    console.log(`🔓 Session ${sessionId} is now unlocked`);
+    io.emit("sessionStatus", { sessionId, locked: false });
+  }
+});
+  
   
   socket.on('disconnect', () => {
     delete users[socket.id];
