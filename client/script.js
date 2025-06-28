@@ -17,26 +17,8 @@ function submitVote(option) {
 function getResults() {
   socket.emit("getResults");
 }
-function loginAdmin() {
-  const pass = document.getElementById("admin-password").value;
-  if (pass === "nss123") {
-    document.getElementById("admin-controls").style.display = "block";
-    alert("Admin logged in successfully!");
-  } else {
-    alert("❌ Incorrect password");
-  }
-}
 
-function sendQuestion() {
-  const question = document.getElementById("question-input").value;
-  if (!question) return alert("Enter a question first");
-  document.getElementById("question").innerText = question;
-  socket.emit("newQuestion", question);
-}
 
-function getSurvivors() {
-  socket.emit("getSurvivors");
-}
 
 socket.on("survivors", (list) => {
   const names = list.map(u => u.name).join(", ");
