@@ -39,7 +39,9 @@ io.on('connection', (socket) => {
   socket.on("newQuestion", ({ sessionId, question }) => {
     const session = sessions[sessionId];
     if (session) {
+       console.log("📤 Sending question to session:", sessionId); // ADD THIS
       Object.keys(session.users).forEach(socketId => {
+         console.log("➡️ Emitting question to:", socketId); // ADD THIS
         io.to(socketId).emit("question", question);
       });
       console.log(`❓ New question sent to session ${sessionId}: ${question}`);
