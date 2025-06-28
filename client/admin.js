@@ -23,6 +23,7 @@ function sendQuestion() {
     return;
   }
 
+  console.log("📤 Sending question to session:", sessionId, q); 
   socket.emit("newQuestion", { sessionId, question: q });
 }
 
