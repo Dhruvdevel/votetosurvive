@@ -13,3 +13,17 @@ button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+.login input{
+height: 10vh;
+width: 80vw;
+border-radius: 20px;
+
+}
+
+.login button{
+height: 10vh;
+width: 80vw;
+border-radius: 20px;
+}
+
