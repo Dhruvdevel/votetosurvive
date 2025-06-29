@@ -8,10 +8,17 @@ function loginAdmin() {
     document.getElementById("admin-password").style.display = "none";
     document.getElementById("login-error").textContent = "";
     alert("✅ Admin Access Granted");
+
+    // ✅ Create session after login
+    const sessionId = document.getElementById("admin-session-id").value;
+    if (sessionId) {
+      socket.emit("createSession", sessionId);
+    }
   } else {
     document.getElementById("login-error").textContent = "❌ Incorrect Password!";
   }
 }
+
 
 // ✅ Send question to session
 function sendQuestion() {
