@@ -3,6 +3,8 @@ display: flex;
 flex-direction: column; 
 gap: 3vh;
   margin: auto;
+  justify-content: center;
+  align-items: center;
 }
 
 
@@ -16,9 +18,9 @@ font-size: 5vw;
 
 
 #login input{
-height: 10vh;
+height: 8vh;
 width: 80vw;
-border-radius: 20px;
+border-radius: 40px;
 
 }
 
