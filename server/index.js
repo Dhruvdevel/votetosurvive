@@ -3,6 +3,9 @@ const http = require('http');
 const cors = require('cors');
 const { Server } = require('socket.io');
 
+let acceptingEntries = true; // ✅ Global switch to allow/disallow joining
+
+
 const app = express();
 app.use(cors());
 
@@ -19,16 +22,36 @@ let currentVotes = []; // { socketId, vote }
 io.on('connection', (socket) => {
   console.log(`📲 New connection: ${socket.id}`);
 
+socket.on("lockEntries", () => {
+  acceptingEntries = false;
+  console.log("🔒 Entries locked by admin");
+});
+
+socket.on("unlockEntries", () => {
+  acceptingEntries = true;
+  console.log("🔓 Entries unlocked by admin");
+});
+
+
+
+  
   // ✅ Join global room with password
   socket.on("join", ({ name, id, roomPass }) => {
   if (roomPass !== ROOM_PASSWORD) {
     socket.emit("joinRejected", "❌ Invalid room password.");
     return;
   }
+
+  if (!acceptingEntries) {
+    socket.emit("joinRejected", "🚫 Entry is closed by admin.");
+    return;
+  }
+
   users[socket.id] = { name, id, eliminated: false };
   console.log(`✅ ${name} (${id}) joined`);
-  socket.emit("joinStatus", "success"); // ✅ notify user
+  socket.emit("joinStatus", "success");
 });
+
 
 
   // ✅ Admin sends question
@@ -41,6 +64,12 @@ io.on('connection', (socket) => {
       }
     });
   });
+
+
+
+
+
+  
 
   // ✅ Voting
   socket.on("vote", (option) => {
