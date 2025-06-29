@@ -84,16 +84,23 @@ socket.on("unlockEntries", () => {
   socket.on("getResults", () => {
     const countA = currentVotes.filter(v => v.vote === 'A').length;
     const countB = currentVotes.filter(v => v.vote === 'B').length;
-    const eliminate = countA > countB ? 'A' : 'B';
+   let eliminate = null;
+if (countA > countB) eliminate = 'A';
+else if (countB > countA) eliminate = 'B';
 
-    currentVotes.forEach(({ socketId, vote }) => {
-      const user = users[socketId];
-      if (vote === eliminate && user && !user.eliminated) {
-        user.eliminated = true;
-        io.to(socketId).emit("eliminated");
-        console.log(`❌ Eliminated ${user.name}`);
-      }
-    });
+if (eliminate) {
+  currentVotes.forEach(({ socketId, vote }) => {
+    const user = users[socketId];
+    if (vote === eliminate && user && !user.eliminated) {
+      user.eliminated = true;
+      io.to(socketId).emit("eliminated");
+      console.log(`❌ Eliminated ${user.name}`);
+    }
+  });
+} else {
+  console.log("⚖️ It's a tie — no one eliminated");
+}
+
 
    io.emit('result', {
   percentA: ((countA / (countA + countB)) * 100 || 0).toFixed(1),
