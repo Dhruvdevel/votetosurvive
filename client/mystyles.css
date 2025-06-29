@@ -6,6 +6,15 @@ gap: 3vh;
 }
 
 
+#login h2{
+font-size: 1vw;
+
+
+}
+
+
+
+
 #login input{
 height: 10vh;
 width: 80vw;
