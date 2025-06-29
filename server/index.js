@@ -11,137 +11,93 @@ const io = new Server(server, {
   cors: { origin: "*" }
 });
 
-// All sessions storage
-const sessions = {}; // { sessionId: { users: { socketId: { name, id, eliminated } }, locked: false } }
-let currentVotes = []; // { sessionId, socketId, vote }
+const ROOM_PASSWORD = "nss123";
+
+const users = {}; // socketId: { name, id, eliminated: false }
+let currentVotes = []; // { socketId, vote }
 
 io.on('connection', (socket) => {
   console.log(`📲 New connection: ${socket.id}`);
 
-  // ✅ Create new session
-  socket.on("createSession", (sessionId) => {
-    sessions[sessionId] = { users: {}, locked: false };
-    console.log(`🆕 Session created: ${sessionId}`);
-  });
-
-  // ✅ User joins session
-  socket.on("join", ({ sessionId, name, id }) => {
-    const session = sessions[sessionId];
-    if (!session || session.locked) {
-      socket.emit("joinRejected", "❌ Session is locked or doesn't exist.");
+  // ✅ Join global room with password
+  socket.on("join", ({ name, id, password }) => {
+    if (password !== ROOM_PASSWORD) {
+      socket.emit("joinRejected", "❌ Invalid room password.");
       return;
     }
-    session.users[socket.id] = { name, id, eliminated: false };
-    console.log(`✅ ${name} (${id}) joined session ${sessionId}`);
+    users[socket.id] = { name, id, eliminated: false };
+    console.log(`✅ ${name} (${id}) joined`);
   });
 
-  // ✅ Admin sends new question to participants
- socket.on("newQuestion", ({ sessionId, question }) => {
-  console.log("📥 Received question:", question, "for session:", sessionId); // ✅ Must log
-  const session = sessions[sessionId];
-  if (session) {
-    Object.keys(session.users).forEach(socketId => {
-      io.to(socketId).emit("question", question);
-       console.log(`📤 Sent question to ${socketId}`);
-    });
-  } else {
-    console.log("❌ Session not found:", sessionId);
-  }
-});
-
-  // ✅ Vote from participant
-  socket.on('vote', (option) => {
-    const sessionId = Object.keys(sessions).find(sid => sessions[sid].users[socket.id]);
-    if (sessionId) {
-      const user = sessions[sessionId].users[socket.id];
-      if (!user.eliminated) {
-        currentVotes.push({ sessionId, socketId: socket.id, vote: option });
-        console.log(`🗳️ Vote received from ${user.name} in ${sessionId}: ${option}`);
+  // ✅ Admin sends question
+  socket.on("newQuestion", (question) => {
+    console.log("📥 Received question:", question);
+    Object.keys(users).forEach(socketId => {
+      if (!users[socketId].eliminated) {
+        io.to(socketId).emit("question", question);
+        console.log(`📤 Sent question to ${socketId}`);
       }
+    });
+  });
+
+  // ✅ Voting
+  socket.on("vote", (option) => {
+    const user = users[socket.id];
+    if (user && !user.eliminated) {
+      currentVotes.push({ socketId: socket.id, vote: option });
+      console.log(`🗳️ Vote received from ${user.name}: ${option}`);
     }
   });
 
-  // ✅ Admin triggers result calculation and elimination
-  socket.on('getResults', () => {
-    const sessionId = Object.keys(sessions).find(sid => sessions[sid].users[socket.id]);
-    if (!sessionId) return;
-
-    const votesForSession = currentVotes.filter(v => v.sessionId === sessionId);
-    const countA = votesForSession.filter(v => v.vote === 'A').length;
-    const countB = votesForSession.filter(v => v.vote === 'B').length;
+  // ✅ Admin gets results and eliminates minority
+  socket.on("getResults", () => {
+    const countA = currentVotes.filter(v => v.vote === 'A').length;
+    const countB = currentVotes.filter(v => v.vote === 'B').length;
     const eliminate = countA > countB ? 'B' : 'A';
 
-    votesForSession.forEach(({ socketId, vote }) => {
-      const user = sessions[sessionId].users[socketId];
+    currentVotes.forEach(({ socketId, vote }) => {
+      const user = users[socketId];
       if (vote === eliminate && user && !user.eliminated) {
         user.eliminated = true;
         io.to(socketId).emit("eliminated");
-        console.log(`❌ Eliminated ${user.name} (${user.id}) from ${sessionId}`);
+        console.log(`❌ Eliminated ${user.name}`);
       }
     });
 
-    Object.keys(sessions[sessionId].users).forEach(socketId => {
+    Object.keys(users).forEach(socketId => {
       io.to(socketId).emit('result', {
         percentA: ((countA / (countA + countB)) * 100 || 0).toFixed(1),
         percentB: ((countB / (countA + countB)) * 100 || 0).toFixed(1),
       });
     });
 
-    console.log(`📊 Result for ${sessionId} — A: ${countA}, B: ${countB}`);
-    currentVotes = currentVotes.filter(v => v.sessionId !== sessionId);
+    currentVotes = [];
   });
 
-  // ✅ Admin manually eliminates a user by ID
-  socket.on("eliminateUser", ({ sessionId, id }) => {
-    const session = sessions[sessionId];
-    if (session) {
-      const userSocketId = Object.keys(session.users).find(
-        sid => session.users[sid].id === id
-      );
-      if (userSocketId) {
-        session.users[userSocketId].eliminated = true;
-        io.to(userSocketId).emit("eliminated");
-        console.log(`⚔️ Admin eliminated ${id} from ${sessionId}`);
-      }
+  // ✅ Admin manually eliminates
+  socket.on("eliminateUser", (id) => {
+    const targetSocketId = Object.keys(users).find(
+      sid => users[sid].id === id
+    );
+    if (targetSocketId) {
+      users[targetSocketId].eliminated = true;
+      io.to(targetSocketId).emit("eliminated");
+      console.log(`⚔️ Admin eliminated ${id}`);
     }
   });
 
-  // ✅ Admin requests survivor list
-  socket.on("getSurvivors", (sessionId) => {
-    const session = sessions[sessionId];
-    if (session) {
-      const survivors = Object.values(session.users).filter(u => !u.eliminated);
-      socket.emit("survivors", survivors);
-      console.log(`📋 Sent survivors list for session ${sessionId}`);
-    }
+  // ✅ Admin requests survivors
+  socket.on("getSurvivors", () => {
+    const survivors = Object.values(users).filter(u => !u.eliminated);
+    socket.emit("survivors", survivors);
+    console.log(`📋 Sent survivors list`);
   });
 
-  // ✅ Lock session to prevent new joins
-  socket.on("lockSession", (sessionId) => {
-    if (sessions[sessionId]) {
-      sessions[sessionId].locked = true;
-      io.emit("sessionStatus", { sessionId, locked: true });
-      console.log(`🔒 Session ${sessionId} locked`);
-    }
-  });
-
-  // ✅ Unlock session
-  socket.on("unlockSession", (sessionId) => {
-    if (sessions[sessionId]) {
-      sessions[sessionId].locked = false;
-      io.emit("sessionStatus", { sessionId, locked: false });
-      console.log(`🔓 Session ${sessionId} unlocked`);
-    }
-  });
-
-  // ✅ Remove user from session on disconnect
+  // ✅ Cleanup on disconnect
   socket.on('disconnect', () => {
-    for (const sessionId in sessions) {
-      if (sessions[sessionId].users[socket.id]) {
-        const user = sessions[sessionId].users[socket.id];
-        delete sessions[sessionId].users[socket.id];
-        console.log(`❌ ${user.name} (${user.id}) disconnected from ${sessionId}`);
-      }
+    if (users[socket.id]) {
+      console.log(`❌ ${users[socket.id].name} (${users[socket.id].id}) disconnected`);
+      delete users[socket.id];
     }
   });
 });
