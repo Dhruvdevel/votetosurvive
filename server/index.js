@@ -95,12 +95,11 @@ socket.on("unlockEntries", () => {
       }
     });
 
-    Object.keys(users).forEach(socketId => {
-      io.to(socketId).emit('result', {
-        percentA: ((countA / (countA + countB)) * 100 || 0).toFixed(1),
-        percentB: ((countB / (countA + countB)) * 100 || 0).toFixed(1),
-      });
-    });
+   io.emit('result', {
+  percentA: ((countA / (countA + countB)) * 100 || 0).toFixed(1),
+  percentB: ((countB / (countA + countB)) * 100 || 0).toFixed(1),
+});
+
 
     currentVotes = [];
   });
