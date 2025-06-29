@@ -2,6 +2,7 @@ const express = require('express');
 const http = require('http');
 const cors = require('cors');
 const { Server } = require('socket.io');
+let pollActive = false; // 🔁 Global poll state
 
 let acceptingEntries = true; // ✅ Global switch to allow/disallow joining
 
@@ -73,6 +74,10 @@ socket.on("unlockEntries", () => {
 
   // ✅ Voting
   socket.on("vote", (option) => {
+     if (!pollActive) {
+    console.log("🚫 Vote ignored: Poll is not active.");
+    return;
+  }
   const user = users[socket.id];
   if (user && !user.eliminated) {
     currentVotes.push({ socketId: socket.id, vote: option });
@@ -90,6 +95,22 @@ socket.on("unlockEntries", () => {
 });
 
 
+// ✅ Admin starts the poll
+socket.on("startPoll", () => {
+  pollActive = true;
+  io.emit("pollStatus", "start");
+  console.log("✅ Poll started");
+});
+
+// ✅ Admin stops the poll
+socket.on("stopPoll", () => {
+  pollActive = false;
+  io.emit("pollStatus", "stop");
+  console.log("🛑 Poll stopped");
+});
+
+
+  
   // ✅ Admin gets results and eliminates minority
   socket.on("getResults", () => {
     const countA = currentVotes.filter(v => v.vote === 'A').length;
