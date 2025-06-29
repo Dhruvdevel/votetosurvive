@@ -14,6 +14,14 @@ button:disabled {
   cursor: not-allowed;
 }
 
+
+.login{
+display: flex;
+flex-direction: column; 
+gap: 3vh;
+}
+
+
 .login input{
 height: 10vh;
 width: 80vw;
