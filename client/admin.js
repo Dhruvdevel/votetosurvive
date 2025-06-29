@@ -8,85 +8,53 @@ function loginAdmin() {
     document.getElementById("admin-password").style.display = "none";
     document.getElementById("login-error").textContent = "";
     alert("✅ Admin Access Granted");
-
-    const sessionId = document.getElementById("admin-session-id").value;
-    if (sessionId) {
-      socket.emit("createSession", sessionId);
-    }
   } else {
     document.getElementById("login-error").textContent = "❌ Incorrect Password!";
   }
 }
 
-// ✅ Send question to session
+// ✅ Send question to all active users
 function sendQuestion() {
-  const q = document.getElementById("question-input").value;
-  const sessionId = document.getElementById("admin-session-id").value;
+  const q = document.getElementById("question-input").value.trim();
 
-  if (!q || !sessionId) {
-    alert("⚠️ Enter both question and session ID.");
+  if (!q) {
+    alert("⚠️ Enter a question to send.");
     return;
   }
 
-  socket.emit("createSession", sessionId); // Just in case it's not created
-  console.log("📤 Sending question to session:", sessionId, q); 
-  socket.emit("newQuestion", { sessionId, question: q });
+  console.log("📤 Sending question:", q);
+  socket.emit("newQuestion", q);
 }
 
-// ✅ Get results and eliminate minority
+// ✅ Get and eliminate minority
 function getResults() {
   console.log("📤 Admin requested getResults");
   socket.emit("getResults");
 }
 
-// ✅ Request survivors from backend
+// ✅ Show survivors
 function getSurvivors() {
-  const sessionId = document.getElementById("admin-session-id").value;
-  if (!sessionId) return alert("⚠️ Enter session ID");
-  socket.emit("getSurvivors", sessionId);
+  socket.emit("getSurvivors");
 }
 
-// ✅ Eliminate specific user from session
+// ✅ Manually eliminate someone
 function eliminateUser(id) {
-  const sessionId = document.getElementById("admin-session-id").value;
-  if (!sessionId) return alert("⚠️ Enter session ID");
-
   const confirmElim = confirm(`Are you sure you want to eliminate ${id}?`);
   if (confirmElim) {
-    socket.emit("eliminateUser", { sessionId, id });
+    socket.emit("eliminateUser", id);
   }
 }
 
-// ✅ Lock session to prevent joins
-function lockSession() {
-  const sessionId = document.getElementById("admin-session-id").value;
-  if (!sessionId) return alert("⚠️ Enter session ID");
-  socket.emit("lockSession", sessionId);
-}
-
-// ✅ Unlock session to allow joins
-function unlockSession() {
-  const sessionId = document.getElementById("admin-session-id").value;
-  if (!sessionId) return alert("⚠️ Enter session ID");
-  socket.emit("unlockSession", sessionId);
-}
-
-// ✅ Live vote results (%A and %B)
+// ✅ Live vote results
 socket.on("result", ({ percentA, percentB }) => {
   document.getElementById("percent-a").textContent = percentA;
   document.getElementById("percent-b").textContent = percentB;
 });
 
-// ✅ Session lock/unlock status logging
-socket.on("sessionStatus", ({ sessionId, locked }) => {
-  const status = locked ? "🔒 locked" : "🔓 unlocked";
-  console.log(`Session ${sessionId} is now ${status}`);
-});
-
-// ✅ Populate survivors table
+// ✅ Show survivor list
 socket.on("survivors", (list) => {
   const tbody = document.querySelector("#survivor-table tbody");
-  tbody.innerHTML = ""; // Clear old rows
+  tbody.innerHTML = "";
 
   list.forEach((user, index) => {
     const row = document.createElement("tr");
