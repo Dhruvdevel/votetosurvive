@@ -28,13 +28,23 @@ socket.on("joinStatus", (msg) => {
 function submitVote(option) {
   socket.emit("vote", option);
   alert(`✅ You voted for ${option}`);
+
+  // Disable buttons after voting
+  document.getElementById("vote-a").disabled = true;
+  document.getElementById("vote-b").disabled = true;
 }
+
 
 // ✅ Receive question
 socket.on("question", (q) => {
   console.log("📥 Question received:", q);
   document.getElementById("question").innerText = q;
+
+  // Re-enable buttons when new question arrives
+  document.getElementById("vote-a").disabled = false;
+  document.getElementById("vote-b").disabled = false;
 });
+
 
 // ✅ Receive result
 socket.on("result", ({ percentA, percentB }) => {
