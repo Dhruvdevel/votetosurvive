@@ -41,6 +41,11 @@ socket.on("result", ({ percentA, percentB }) => {
   document.getElementById("result").innerText = `A: ${percentA}%, B: ${percentB}%`;
 });
 
+socket.on("joinRejected", (msg) => {
+  alert(msg);
+});
+
+
 // ✅ Eliminated
 socket.on("eliminated", () => {
   alert("❌ You have been eliminated!");
