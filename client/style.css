@@ -9,3 +9,7 @@ button {
   margin: 10px;
   font-size: 18px;
 }
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
