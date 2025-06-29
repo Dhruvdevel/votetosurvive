@@ -1,39 +1,34 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Vote to Survive</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>Vote To Survive</title>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script src="script.js" defer></script>
+  <link rel="stylesheet" href="style.css"> <!-- Optional -->
 </head>
 <body>
+
+  <!-- 📍 Login Section -->
   <div id="login">
-    <h2>Join Game</h2>
-    <input id="session-id" placeholder="Enter Session Code (e.g. NSS2025-01)">
-    <input id="name" placeholder="Your Name" />
-    <input id="id" placeholder="Student ID" />
+    <h2>👤 Join Game</h2>
+    <input type="text" id="name" placeholder="Your Name"><br><br>
+    <input type="text" id="id" placeholder="Your ID"><br><br>
+    <input type="password" id="room-password" placeholder="Room Password"><br><br>
     <button onclick="joinGame()">Join</button>
   </div>
 
-  <div id="game" style="display:none;">
-    <h2 id="question">Waiting for question...</h2>
-    <button onclick="submitVote('A')">Option A</button>
-    <button onclick="submitVote('B')">Option B</button>
-    
-    <p id="result"></p>
+  <!-- 📍 Game Section -->
+  <div id="game" style="display: none;">
+    <h2>❓ Question</h2>
+    <p id="question">Waiting for question...</p>
+
+    <button onclick="submitVote('A')">A</button>
+    <button onclick="submitVote('B')">B</button>
+
+    <h3>📊 Live Results</h3>
+    <p id="result">A: 0%, B: 0%</p>
   </div>
 
-
-
-
-
-
-
-  
-
-  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-  <script src="script.js"></script>
-
-
-
-  
 </body>
 </html>
