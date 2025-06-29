@@ -20,14 +20,16 @@ io.on('connection', (socket) => {
   console.log(`📲 New connection: ${socket.id}`);
 
   // ✅ Join global room with password
-  socket.on("join", ({ name, id, password }) => {
-    if (password !== ROOM_PASSWORD) {
-      socket.emit("joinRejected", "❌ Invalid room password.");
-      return;
-    }
-    users[socket.id] = { name, id, eliminated: false };
-    console.log(`✅ ${name} (${id}) joined`);
-  });
+  socket.on("join", ({ name, id, roomPass }) => {
+  if (roomPass !== ROOM_PASSWORD) {
+    socket.emit("joinRejected", "❌ Invalid room password.");
+    return;
+  }
+  users[socket.id] = { name, id, eliminated: false };
+  console.log(`✅ ${name} (${id}) joined`);
+  socket.emit("joinStatus", "success"); // ✅ notify user
+});
+
 
   // ✅ Admin sends question
   socket.on("newQuestion", (question) => {
