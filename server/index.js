@@ -42,6 +42,7 @@ io.on('connection', (socket) => {
   if (session) {
     Object.keys(session.users).forEach(socketId => {
       io.to(socketId).emit("question", question);
+       console.log(`📤 Sent question to ${socketId}`);
     });
   } else {
     console.log("❌ Session not found:", sessionId);
