@@ -1,5 +1,6 @@
 body{
 background-color: black;
+  color:white;
 }
 
 #login{
@@ -27,7 +28,7 @@ width: 80vw;
 border-radius: 40px;
 font-size: 3vh; 
   border: 5px solid #2DBD55;
-  box-shadow:2px 4px 9px 0px #858585d1;   
+  box-shadow:10px 11px 20px 0px #676767;   
 
 }
 
