@@ -1,14 +1,8 @@
 body {
   font-family: sans-serif;
   text-align: center;
-  padding: 30px;
 }
 
-button {
-  padding: 10px 20px;
-  margin: 10px;
-  font-size: 18px;
-}
 button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
