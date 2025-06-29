@@ -47,6 +47,11 @@ socket.on("unlockEntries", () => {
     socket.emit("joinRejected", "❌ Invalid ID format.");
     return;
   }
+const alreadyExists = Object.values(users).some(u => u.id === id);
+if (alreadyExists) {
+  socket.emit("joinRejected", "❌ This ID is already in use.");
+  return;
+}
 
 
   if (!acceptingEntries) {
@@ -57,6 +62,12 @@ socket.on("unlockEntries", () => {
   users[socket.id] = { name, id, eliminated: false };
   console.log(`✅ ${name} (${id}) joined`);
   socket.emit("joinStatus", "success");
+    if (pollActive) {
+  socket.emit("pollStatus", "start");
+} else {
+  socket.emit("pollStatus", "stop");
+}
+
 });
 
 
@@ -86,6 +97,11 @@ socket.on("unlockEntries", () => {
   }
   const user = users[socket.id];
   if (user && !user.eliminated) {
+    if (currentVotes.some(v => v.socketId === socket.id)) {
+  console.log(`⛔ Duplicate vote ignored from ${user.name}`);
+  return;
+}
+
     currentVotes.push({ socketId: socket.id, vote: option });
     console.log(`🗳️ Vote received from ${user.name}: ${option}`);
 
@@ -117,26 +133,42 @@ socket.on("stopPoll", () => {
 
 
   
-  // ✅ Admin gets results and eliminates minority
   socket.on("getResults", () => {
-    const countA = currentVotes.filter(v => v.vote === 'A').length;
-    const countB = currentVotes.filter(v => v.vote === 'B').length;
-   let eliminate = null;
-if (countA > countB) eliminate = 'A';
-else if (countB > countA) eliminate = 'B';
+  const countA = currentVotes.filter(v => v.vote === 'A').length;
+  const countB = currentVotes.filter(v => v.vote === 'B').length;
 
-if (eliminate) {
-  currentVotes.forEach(({ socketId, vote }) => {
+  let eliminate = null;
+  if (countA > countB) eliminate = 'A';
+  else if (countB > countA) eliminate = 'B';
+
+  const voters = new Set(currentVotes.map(v => v.socketId));
+
+  if (eliminate) {
+    // Eliminate majority voters
+    currentVotes.forEach(({ socketId, vote }) => {
+      const user = users[socketId];
+      if (vote === eliminate && user && !user.eliminated) {
+        user.eliminated = true;
+        io.to(socketId).emit("eliminated");
+        console.log(`❌ Eliminated ${user.name} for voting ${eliminate}`);
+      }
+    });
+  } else {
+    console.log("⚖️ It's a tie — no one eliminated for voting");
+  }
+
+  // Eliminate users who didn't vote
+  Object.keys(users).forEach(socketId => {
     const user = users[socketId];
-    if (vote === eliminate && user && !user.eliminated) {
+    if (!voters.has(socketId) && user && !user.eliminated) {
       user.eliminated = true;
       io.to(socketId).emit("eliminated");
-      console.log(`❌ Eliminated ${user.name}`);
+      console.log(`🚫 Eliminated ${user.name} for not voting`);
     }
   });
-} else {
-  console.log("⚖️ It's a tie — no one eliminated");
-}
+
+  // Send final vote percentage to all
+  const total = countA + countB;
 
 
    io.emit('result', {
