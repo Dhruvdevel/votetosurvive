@@ -42,6 +42,12 @@ socket.on("unlockEntries", () => {
     socket.emit("joinRejected", "❌ Invalid room password.");
     return;
   }
+    const validIdPattern = /^25(ucs|ucc|uec|ume|dcs|dec)\d{3}$/i;
+  if (!validIdPattern.test(id)) {
+    socket.emit("joinRejected", "❌ Invalid ID format.");
+    return;
+  }
+
 
   if (!acceptingEntries) {
     socket.emit("joinRejected", "🚫 Entry is closed by admin.");
