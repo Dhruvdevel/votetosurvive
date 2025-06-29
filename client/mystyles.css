@@ -14,7 +14,7 @@ gap: 0.5vh;
 
 #login h2{
 font-size: 5vw;
-
+color: white;
 
 }
 
@@ -26,10 +26,14 @@ height: 6vh;
 width: 80vw;
 border-radius: 40px;
 font-size: 3vh; 
+  border: 1px solid #2DBD55;
 }
 
 #login button{
-height: 10vh;
+height: 6vh;
 width: 80vw;
 border-radius: 20px;
+  font-size: 3vh;
+  color: white;
+  background-color:#2DBD55;
 }
