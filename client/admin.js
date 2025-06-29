@@ -9,7 +9,6 @@ function loginAdmin() {
     document.getElementById("login-error").textContent = "";
     alert("✅ Admin Access Granted");
 
-    // ✅ Create session after login
     const sessionId = document.getElementById("admin-session-id").value;
     if (sessionId) {
       socket.emit("createSession", sessionId);
@@ -18,7 +17,6 @@ function loginAdmin() {
     document.getElementById("login-error").textContent = "❌ Incorrect Password!";
   }
 }
-
 
 // ✅ Send question to session
 function sendQuestion() {
@@ -30,23 +28,16 @@ function sendQuestion() {
     return;
   }
 
-  // 🔄 Always create session before sending question (safe even if already exists)
-  socket.emit("createSession", sessionId);
-
+  socket.emit("createSession", sessionId); // Just in case it's not created
   console.log("📤 Sending question to session:", sessionId, q); 
   socket.emit("newQuestion", { sessionId, question: q });
 }
 
-
-  console.log("📤 Sending question to session:", sessionId, q); 
-  socket.emit("newQuestion", { sessionId, question: q });
-}
-
+// ✅ Get results and eliminate minority
 function getResults() {
   console.log("📤 Admin requested getResults");
   socket.emit("getResults");
 }
-
 
 // ✅ Request survivors from backend
 function getSurvivors() {
