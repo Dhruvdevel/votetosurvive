@@ -30,6 +30,14 @@ function sendQuestion() {
     return;
   }
 
+  // 🔄 Always create session before sending question (safe even if already exists)
+  socket.emit("createSession", sessionId);
+
+  console.log("📤 Sending question to session:", sessionId, q); 
+  socket.emit("newQuestion", { sessionId, question: q });
+}
+
+
   console.log("📤 Sending question to session:", sessionId, q); 
   socket.emit("newQuestion", { sessionId, question: q });
 }
