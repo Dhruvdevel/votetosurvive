@@ -84,7 +84,7 @@ socket.on("unlockEntries", () => {
   socket.on("getResults", () => {
     const countA = currentVotes.filter(v => v.vote === 'A').length;
     const countB = currentVotes.filter(v => v.vote === 'B').length;
-    const eliminate = countA > countB ? 'B' : 'A';
+    const eliminate = countA > countB ? 'A' : 'B';
 
     currentVotes.forEach(({ socketId, vote }) => {
       const user = users[socketId];
