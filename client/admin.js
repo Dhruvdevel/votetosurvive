@@ -26,6 +26,19 @@ function sendQuestion() {
   socket.emit("newQuestion", q);
 }
 
+
+
+function lockEntries() {
+  socket.emit("lockEntries");
+  alert("🚫 Entries locked.");
+}
+
+function unlockEntries() {
+  socket.emit("unlockEntries");
+  alert("✅ Entries unlocked.");
+}
+
+
 // ✅ Get and eliminate minority
 function getResults() {
   console.log("📤 Admin requested getResults");
