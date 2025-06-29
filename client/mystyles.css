@@ -1,18 +1,18 @@
-.login{
+#login{
 display: flex;
 flex-direction: column; 
 gap: 3vh;
 }
 
 
-.login input{
+#login input{
 height: 10vh;
 width: 80vw;
 border-radius: 20px;
 
 }
 
-.login button{
+#login button{
 height: 10vh;
 width: 80vw;
 border-radius: 20px;
