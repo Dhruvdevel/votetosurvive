@@ -4,6 +4,8 @@ const socket = io("https://votetosurvive.onrender.com");
 function loginAdmin() {
   const pass = document.getElementById("admin-password").value;
   if (pass === "nss123") {
+    localStorage.setItem("adminLoggedIn", "true");
+
     document.getElementById("admin-controls").style.display = "block";
     document.getElementById("admin-password").style.display = "none";
     document.getElementById("login-error").textContent = "";
@@ -12,6 +14,7 @@ function loginAdmin() {
     document.getElementById("login-error").textContent = "❌ Incorrect Password!";
   }
 }
+
 
 // ✅ Send question to all active users
 function sendQuestion() {
@@ -57,6 +60,21 @@ function eliminateUser(id) {
     socket.emit("eliminateUser", id);
   }
 }
+
+function logoutAdmin() {
+  localStorage.removeItem("adminLoggedIn");
+  location.reload();
+}
+
+
+window.addEventListener("load", () => {
+  const adminLoggedIn = localStorage.getItem("adminLoggedIn");
+  if (adminLoggedIn === "true") {
+    document.getElementById("admin-controls").style.display = "block";
+    document.getElementById("admin-password").style.display = "none";
+  }
+});
+
 
 // ✅ Live vote results
 socket.on("result", ({ percentA, percentB }) => {
