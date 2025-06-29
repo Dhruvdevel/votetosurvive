@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>📊 Live Polling</title>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 30px;
+      background-color: #f0f2f5;
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 40px;
+    }
+
+    .bar-container {
+      width: 80%;
+      margin: 20px auto;
+      background-color: #ddd;
+      border-radius: 20px;
+      overflow: hidden;
+      height: 40px;
+      position: relative;
+    }
+
+    .bar {
+      height: 100%;
+      line-height: 40px;
+      color: white;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    #bar-a {
+      background-color: #3498db;
+      width: 0%;
+    }
+
+    #bar-b {
+      background-color: #e74c3c;
+      width: 0%;
+    }
+
+    .label {
+      margin-top: 5px;
+      font-size: 18px;
+    }
+
+    #live-container {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 🔐 Password Prompt -->
+  <div id="password-prompt">
+    <h2>🔐 Enter Live View Password</h2>
+    <input type="password" id="view-pass" placeholder="Enter password">
+    <button onclick="checkPassword()">Enter</button>
+    <p id="pass-error" style="color:red;"></p>
+  </div>
+
+  <!-- 📊 Main Live Result -->
+  <div id="live-container">
+    <h1>🟢 Live Voting Result</h1>
+
+    <div class="label">Option A</div>
+    <div class="bar-container">
+      <div class="bar" id="bar-a">0%</div>
+    </div>
+
+    <div class="label">Option B</div>
+    <div class="bar-container">
+      <div class="bar" id="bar-b">0%</div>
+    </div>
+  </div>
+
+  <script>
+    const PASSWORD = "nsslive"; // 🔑 Change this if needed
+
+    function checkPassword() {
+      const input = document.getElementById("view-pass").value.trim();
+      if (input === PASSWORD) {
+        document.getElementById("password-prompt").style.display = "none";
+        document.getElementById("live-container").style.display = "block";
+        startSocket();
+      } else {
+        document.getElementById("pass-error").textContent = "❌ Incorrect password";
+      }
+    }
+
+    function startSocket() {
+      const socket = io("https://votetosurvive.onrender.com");
+
+      socket.on("voteUpdate", ({ percentA, percentB }) => {
+        document.getElementById("bar-a").style.width = percentA + "%";
+        document.getElementById("bar-b").style.width = percentB + "%";
+
+        document.getElementById("bar-a").textContent = percentA + "%";
+        document.getElementById("bar-b").textContent = percentB + "%";
+      });
+    }
+  </script>
+
+</body>
+</html>
