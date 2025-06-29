@@ -37,3 +37,8 @@ border-radius: 20px;
   color: white;
   background-color:#2DBD55;
 }
+
+button:hover {
+box-shadow: 2px 2px 2px white;   
+background-color:#45CE6B;
+}
