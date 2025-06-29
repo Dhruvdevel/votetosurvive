@@ -1,7 +1,7 @@
 #login{
 display: flex;
 flex-direction: column; 
-gap: 1vh;
+gap: 0.5vh;
   margin: auto;
   justify-content: center;
   align-items: center;
@@ -18,7 +18,7 @@ font-size: 5vw;
 
 
 #login input{
-height: 8vh;
+height: 6vh;
 width: 80vw;
 border-radius: 40px;
 
