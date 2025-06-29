@@ -73,12 +73,22 @@ socket.on("unlockEntries", () => {
 
   // ✅ Voting
   socket.on("vote", (option) => {
-    const user = users[socket.id];
-    if (user && !user.eliminated) {
-      currentVotes.push({ socketId: socket.id, vote: option });
-      console.log(`🗳️ Vote received from ${user.name}: ${option}`);
-    }
-  });
+  const user = users[socket.id];
+  if (user && !user.eliminated) {
+    currentVotes.push({ socketId: socket.id, vote: option });
+    console.log(`🗳️ Vote received from ${user.name}: ${option}`);
+
+    // 🔴 Emit live vote update
+    const countA = currentVotes.filter(v => v.vote === 'A').length;
+    const countB = currentVotes.filter(v => v.vote === 'B').length;
+
+    io.emit("voteUpdate", {
+      percentA: ((countA / (countA + countB)) * 100 || 0).toFixed(1),
+      percentB: ((countB / (countA + countB)) * 100 || 0).toFixed(1),
+    });
+  }
+});
+
 
   // ✅ Admin gets results and eliminates minority
   socket.on("getResults", () => {
