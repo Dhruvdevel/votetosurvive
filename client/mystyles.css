@@ -1,3 +1,7 @@
+body{
+background-color: black;
+}
+
 #login{
 display: flex;
 flex-direction: column; 
@@ -21,7 +25,7 @@ font-size: 5vw;
 height: 6vh;
 width: 80vw;
 border-radius: 40px;
-
+font-size: 3vh; 
 }
 
 #login button{
