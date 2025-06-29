@@ -1,4 +1,5 @@
 const socket = io("https://votetosurvive.onrender.com");
+let pollActive = false; // 🔁 Controls if user can vote
 
 // ✅ Join the global room with password
 function joinGame() {
@@ -15,14 +16,12 @@ function joinGame() {
   socket.emit("join", { name, id, roomPass });
 }
 
-
-// ✅ Receive join response
+// ✅ Handle join status
 socket.on("joinStatus", (msg) => {
   if (msg === "success") {
     document.getElementById("login").style.display = "none";
     document.getElementById("game").style.display = "block";
 
-    // 🌟 Display user info
     const saved = JSON.parse(localStorage.getItem("loggedInUser"));
     document.getElementById("user-info").textContent = `👤 ${saved.name} (${saved.id})`;
   } else {
@@ -31,55 +30,57 @@ socket.on("joinStatus", (msg) => {
   }
 });
 
-
-// ✅ Submit vote
-function submitVote(option) {
-  socket.emit("vote", option);
-  alert(`✅ You voted for ${option}`);
-
-  // Disable buttons after voting
-  document.getElementById("vote-a").disabled = true;
-  document.getElementById("vote-b").disabled = true;
-}
-
-function logout() {
-  localStorage.removeItem("loggedInUser");
-  location.reload(); // full page reload to reset
-}
-
+// ✅ Auto rejoin on page load
 window.addEventListener("load", () => {
   const saved = localStorage.getItem("loggedInUser");
   if (saved) {
     const { name, id, roomPass } = JSON.parse(saved);
     socket.emit("join", { name, id, roomPass });
 
-    // 🌟 Show name + ID even on refresh
     document.getElementById("user-info").textContent = `👤 ${name} (${id})`;
   }
 });
 
+// ✅ Submit vote
+function submitVote(option) {
+  if (!pollActive) {
+    alert("🚫 Poll is not active yet!");
+    return;
+  }
 
+  socket.emit("vote", option);
+  alert(`✅ You voted for ${option}`);
 
-// ✅ Receive question
+  document.getElementById("vote-a").disabled = true;
+  document.getElementById("vote-b").disabled = true;
+}
+
+// ✅ Logout
+function logout() {
+  localStorage.removeItem("loggedInUser");
+  location.reload(); // full reset
+}
+
+// ✅ Handle question
 socket.on("question", (q) => {
   console.log("📥 Question received:", q);
   document.getElementById("question").innerText = q;
 
-  // Re-enable buttons when new question arrives
-  document.getElementById("vote-a").disabled = false;
-  document.getElementById("vote-b").disabled = false;
+  // Always disable buttons until admin starts the poll
+  document.getElementById("vote-a").disabled = true;
+  document.getElementById("vote-b").disabled = true;
 });
 
-
-// ✅ Receive result
+// ✅ Handle result
 socket.on("result", ({ percentA, percentB }) => {
   document.getElementById("result").innerText = `A: ${percentA}%, B: ${percentB}%`;
 });
 
+// ✅ Rejected join
 socket.on("joinRejected", (msg) => {
   alert(msg);
+  localStorage.removeItem("loggedInUser");
 });
-
 
 // ✅ Eliminated
 socket.on("eliminated", () => {
@@ -87,5 +88,12 @@ socket.on("eliminated", () => {
   document.getElementById("game").style.display = "none";
 });
 
+// ✅ Handle poll start/stop from admin
+socket.on("pollStatus", (status) => {
+  pollActive = status === "start";
 
+  document.getElementById("vote-a").disabled = !pollActive;
+  document.getElementById("vote-b").disabled = !pollActive;
 
+  console.log(`📡 Poll is now ${pollActive ? "ACTIVE" : "INACTIVE"}`);
+});
