@@ -19,7 +19,9 @@ function joinGame() {
 function submitVote(option) {
   socket.emit("vote", option);
   alert(`✅ You voted for ${option}`);
+  document.querySelectorAll("#game button").forEach(btn => btn.disabled = true);
 }
+
 
 // ✅ This function is only for admin, REMOVE from user script
 // function getResults() {
