@@ -41,6 +41,16 @@ function unlockEntries() {
   alert("✅ Entries unlocked.");
 }
 
+function startPoll() {
+  socket.emit("startPoll");
+  alert("✅ Poll started");
+}
+
+function stopPoll() {
+  socket.emit("stopPoll");
+  alert("⏹️ Poll stopped");
+}
+
 
 // ✅ Get and eliminate minority
 function getResults() {
